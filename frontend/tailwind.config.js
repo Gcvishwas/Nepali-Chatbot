@@ -4,7 +4,7 @@ module.exports = {
   theme: {
     extend: {
       animation: {
-        rotateOrbital: "rotateOrbital 100s linear infinite",
+        rotateOrbital: "rotateOrbital 200s linear infinite",
         ambulanceAnimate: "botAnimate 2s linear infinite alternate",
         slideBg: "slideBg 8s ease-in-out infinite alternate",
       },

@@ -12,9 +12,9 @@ const RootLayout = () => {
     <div className="px-16 py-4 h-screen flex flex-col">
       <header className="flex items-center justify-between">
         <Link to="/" className="flex items-center font-bold gap-2">
-        <img src="/vite.svg" alt="" className="w-8 h-8
+        <img src="/vite.svg" alt="" className="w-6 h-6
 " />
-              <span>Prakop.AI</span>
+              <span className="font-bold bg-gradient-to-r from-[#217bfe] to-[#e55571] bg-clip-text text-transparent">Prakop.AI</span>
         </Link>
         <div className="user">
               <SignedIn>
