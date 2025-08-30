@@ -16,8 +16,8 @@ const ChatList = () => {
 <hr className="border-none h-[2px] bg-[#ddd] opacity-10 rounded-[5px] my-5" />
 <span className="title font-semibold text-[10px] mb-2.5">RECENT CHATS</span>
       <div className="list flex flex-col overflow-y-auto scrollbar-hide">
-        <Link to="/">My chat list</Link>
-        <Link to="/">My chat list</Link>
+        <Link to="/" className='rounded-[10px] p-1.5 hover:bg-[#2c2937]'>My chat list</Link>
+        <Link to="/" className='rounded-[10px]  p-1.5 hover:bg-[#2c2937]'>My chat list</Link>
       </div>
        <hr className="border-none h-[2px] bg-[#ddd] opacity-10 rounded-[5px] my-5" />
        <div className="upgrade mt-auto flex items-center gap-2 text-[12px]">
