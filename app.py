@@ -7,6 +7,8 @@ import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from fastapi.middleware.cors import CORSMiddleware
 import os
+from google import genai
+from google.genai import types
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -30,6 +32,18 @@ app.add_middleware(
      allow_methods=["*"],   # <-- add this
     allow_headers=["*"],  
 )
+def correct_response(question:str,answer:str) -> str:
+    client = genai.Client(api_key='AIzaSyBNc_Yzs5uWlYtoXu_YK2QZtGAXQ5rUI1E')
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=f"Your job is to correct the output given by a trained gpt-2 model in Nepali.Your job is to reply in Nepali language only. Don't mix up with English or other language. This chatbot is not properly trained. So it gives sequence that does not make sense. Your job is to correct the output given by this model so that it is coherant and it makes sense.Make sure that you do not add unnecessary information that is not in the response. If the answer is not relevant to disaster related to Nepal, simply say ''मसँग विपद्सँग सम्बन्धित सीमित जानकारी मात्र छ। अन्य प्रश्नहरूको लागि इन्टरनेट हेर्नुहोस्।'.If the question is in English or any other language, just reply 'कृपया नेपाली भाषामा प्रश्न सोध्नुहोस्।'. Here is the question by the user and the answwer by the model: QUESTION{question}  ANSWER:{answer}",
+        config=types.GenerateContentConfig(
+            temperature=0.6
+        )
+    )
+    return response.text
+
 # Global variables for model and tokenizer
 model = None
 tokenizer = None
@@ -131,7 +145,7 @@ async def chat(request: ChatRequest):
             bot_response = generated_text[len(request.prompt):].strip()
         
         return ChatResponse(
-            response=bot_response,
+            response=correct_response(request.prompt,bot_response),
             original_prompt=request.prompt
         )
         

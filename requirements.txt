@@ -11,3 +11,5 @@ onnxruntime==1.16.0
 
 # Additional dependencies that might be needed
 numpy==1.24.3
+google-genai
+motor
