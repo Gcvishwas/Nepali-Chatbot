@@ -4,7 +4,9 @@ from optimum.onnxruntime import ORTModelForCausalLM
 from transformers import AutoTokenizer
 import torch
 import logging
-
+from motor.motor_asyncio import AsyncIOMotorClient
+from fastapi.middleware.cors import CORSMiddleware
+import os
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,7 +17,19 @@ app = FastAPI(
     description="A GPT-2 based chatbot for disaster response in Nepali language",
     version="1.0.0"
 )
+mongo_client = AsyncIOMotorClient(os.environ.get("MONGO"))
+db = mongo_client["nepali_chatbot"]
+chats_collection = db["chats"]
+userchats_collection = db["userchats"]
 
+# Setting up CORS for cross-browser request handling
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[os.environ.get("CLIENT_URL", "http://localhost:5173")],
+    allow_credentials=True,
+     allow_methods=["*"],   # <-- add this
+    allow_headers=["*"],  
+)
 # Global variables for model and tokenizer
 model = None
 tokenizer = None
