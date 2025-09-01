@@ -6,7 +6,7 @@ const ChatList = () => {
     <div className="flex flex-col h-full">
         <span className="title font-semibold text-[10px] mb-2.5">DASHBOARD</span>
   <Link
-    to="/dashboard"
+    to="/dashboard/chats/1234"
     className="p-2.5 rounded-[10px] hover:bg-[#2c2937]"
   >
     Create a new Chat
@@ -14,6 +14,7 @@ const ChatList = () => {
       <Link to="/"  className="p-2.5 rounded-[10px] hover:bg-[#2c2937]">Explore</Link>
       <Link to="/"  className="p-2.5 rounded-[10px] hover:bg-[#2c2937]">Contact</Link>
 <hr className="border-none h-[2px] bg-[#ddd] opacity-10 rounded-[5px] my-5" />
+{/* Recent Chats */}
 <span className="title font-semibold text-[10px] mb-2.5">RECENT CHATS</span>
       <div className="list flex flex-col overflow-y-auto scrollbar-hide">
         <Link to="/" className='rounded-[10px] p-1.5 hover:bg-[#2c2937]'>My chat list</Link>
