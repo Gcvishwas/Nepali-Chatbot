@@ -1,35 +1,106 @@
-import {Link, Outlet} from "react-router-dom"
-import {ClerkProvider, SignedIn, UserButton} from "@clerk/clerk-react"
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+import { useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { ClerkProvider, SignedIn, UserButton } from "@clerk/clerk-react";
+
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
-  throw new Error('Missing Publishable Key')
+  throw new Error("Missing Clerk Publishable Key");
 }
+
 const RootLayout = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const isDashboardRoute = location.pathname.startsWith("/dashboard");
+  const isExplorePage=location.pathname==="/explore"
+
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <div className="px-6 md:px-16 py-4 h-screen flex flex-col">
+        {/* ===== Header ===== */}
+        <header className="flex items-center justify-between relative animate-slideDown">
+          {/* Logo (always visible) */}
+          <Link
+            to="/"
+            className="flex items-center font-bold gap-2 text-lg"
+            onClick={() => setMenuOpen(false)}
+          >
+            <img src="/vite.svg" alt="logo" className="w-6 h-6" />
+            <span className="font-bold bg-gradient-to-r from-[#217bfe] to-[#e55571] bg-clip-text text-transparent">
+              Prakop.AI
+            </span>
+          </Link>
 
-    <div className="px-16 py-4 h-screen flex flex-col">
-      <header className="flex items-center justify-between">
-        <Link to="/" className="flex items-center font-bold gap-2">
-        <img src="/vite.svg" alt="" className="w-6 h-6
-" />
-              <span className="font-bold bg-gradient-to-r from-[#217bfe] to-[#e55571] bg-clip-text text-transparent">Prakop.AI</span>
-        </Link>
-        <div className="user">
+          {/* ===== Centered Navbar (only outside dashboard) ===== */}
+          {!isDashboardRoute && (
+            <nav className="absolute left-1/2 transform -translate-x-1/2 hidden md:flex items-center gap-10 font-semibold text-gray-400">
+              <Link to="/" className="hover:text-white transition">
+                Home
+              </Link>
+              <Link to="/explore" className="hover:text-white transition">
+                Explore
+              </Link>
+              <Link to="/emergency" className="hover:text-white transition">
+                Emergency
+              </Link>
+            </nav>
+          )}
+
+          <div className="flex items-center gap-4">
+            {/* Mobile Menu Toggle */}
+            {!isDashboardRoute && (
+              <button
+                className="md:hidden text-gray-300 hover:text-white transition"
+                onClick={() => setMenuOpen((prev) => !prev)}
+              >
+                {menuOpen ? <span className="text-xl">✕</span> : <span className="text-2xl">☰</span>}
+              </button>
+            )}
+
+            {/* ===== UserButton (only on dashboard routes) ===== */}
+            {isDashboardRoute && (
               <SignedIn>
-              <UserButton />
+                <UserButton afterSignOutUrl="/" />
               </SignedIn>
-              </div>
-      </header>
-      <main className="flex-1 overflow-hidden">
-        <Outlet/>
-      </main>
-    </div>
-              </ClerkProvider>
-    
+            )}
+          </div>
 
-  )
-}
+          {/* ===== Mobile Dropdown ===== */}
+          {menuOpen && !isDashboardRoute && (
+            <div className="absolute top-14 right-0 w-40 bg-[#1c1a29] rounded-xl shadow-md p-4 flex flex-col gap-3 text-gray-300 md:hidden z-50">
+              <Link
+                to="/"
+                onClick={() => setMenuOpen(false)}
+                className="hover:text-[#217bfe] transition"
+              >
+                Home
+              </Link>
+              <Link
+                to="/explore"
+                onClick={() => setMenuOpen(false)}
+                className="hover:text-[#217bfe] transition"
+              >
+                Explore
+              </Link>
+              <Link
+                to="/emergency"
+                onClick={() => setMenuOpen(false)}
+                className="hover:text-[#217bfe] transition"
+              >
+                Emergency
+              </Link>
+            </div>
+          )}
+        </header>
 
-export default RootLayout
+        {/* ===== Main Content ===== */}
+        <main className={`flex-1 mt-5 ${!isExplorePage ? "overflow-hidden" : "overflow-auto"}`}>
+          <Outlet />
+        </main>
+      </div>
+    </ClerkProvider>
+  );
+};
+
+export default RootLayout;
