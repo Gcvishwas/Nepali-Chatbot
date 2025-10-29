@@ -36,13 +36,16 @@ const RootLayout = () => {
           {!isDashboardRoute && (
             <nav className="absolute left-1/2 transform -translate-x-1/2 hidden md:flex items-center gap-10 font-semibold text-gray-400">
               <Link to="/" className="hover:text-white transition">
-                Home
+                गृहपृष्ठ
               </Link>
               <Link to="/explore" className="hover:text-white transition">
-                Explore
+                अन्वेषण
+              </Link>
+              <Link to="/emergency" className="text-red-400 hover:text-red-500 transition">
+                आपतकालीन सम्पर्क
               </Link>
               <Link to="/emergency" className="hover:text-white transition">
-                Emergency
+                च्याटबोट
               </Link>
             </nav>
           )}
@@ -74,21 +77,28 @@ const RootLayout = () => {
                 onClick={() => setMenuOpen(false)}
                 className="hover:text-[#217bfe] transition"
               >
-                Home
+                गृहपृष्ठ
               </Link>
               <Link
                 to="/explore"
                 onClick={() => setMenuOpen(false)}
                 className="hover:text-[#217bfe] transition"
               >
-                Explore
+                अन्वेषण
               </Link>
               <Link
                 to="/emergency"
                 onClick={() => setMenuOpen(false)}
                 className="hover:text-[#217bfe] transition"
               >
-                Emergency
+                आपतकालीन सम्पर्क
+              </Link>
+              <Link
+                to="/emergency"
+                onClick={() => setMenuOpen(false)}
+                className="hover:text-[#217bfe] transition"
+              >
+                च्याटबोट
               </Link>
             </div>
           )}
