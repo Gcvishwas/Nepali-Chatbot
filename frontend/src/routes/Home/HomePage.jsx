@@ -37,7 +37,7 @@ const HomePage = () => {
     to="/explore"
     className="px-5 py-3 border border-[#217bfe] text-[#217bfe] hover:bg-[#217bfe] hover:text-white rounded-[20px] text-sm transition text-center"
   >
-    Explore गर्नुहोस्
+    अन्वेषण गर्नुहोस्
   </Link>
 </div>
       </div>
