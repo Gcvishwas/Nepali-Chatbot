@@ -6,7 +6,7 @@ const HomePage = () => {
   const [typingStatus, setTypingStatus] = useState("human1");
 
   return (
-    <div className="container mx-auto flex items-center gap-[100px] h-full flex-col lg:flex-row lg:gap-0 relative">
+    <div className="container mx-auto flex items-center gap-10 h-full flex-col lg:flex-row lg:gap-0 relative">
       {/* Background Orbital */}
       <img
         src="/orbital.png"
@@ -16,21 +16,30 @@ const HomePage = () => {
 
       {/* Left Section */}
       <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-4">
-        <h1 className="text-8xl xl:text-6xl bg-gradient-to-r from-[#217bfe] to-[#e55571] bg-clip-text text-transparent">
+        <h1 className="text-8xl xl:text-6xl sm:text-5xl bg-gradient-to-r from-[#217bfe] to-[#e55571] bg-clip-text text-transparent">
           प्रकोप AI
         </h1>
         <h2 className="text-xl font-semibold text-gray-200">
           नेपाली प्राकृतिक विपद् प्रतिक्रिया च्याटबोट
         </h2>
-        <h3 className="font-normal max-w-[70%] lg:max-w-full text-gray-400">
+        <h3 className="font-normal  sm:max-w-[70%] lg:max-w-full text-gray-400">
           भूकम्प, बाढी, पहिरो जस्ता विपद्को बेला तत्काल जानकारी, सुझाव र सहयोग प्राप्त गर्नुहोस् — पूर्ण रूपमा नेपाली भाषामा।
         </h3>
-        <Link
-          to="/dashboard"
-          className="mt-5 px-6 py-3 bg-[#217bfe] hover:bg-green-400 text-white hover:text-black rounded-[20px] text-sm transition"
-        >
-          च्याटबोट प्रयोग गर्नुहोस्
-        </Link>
+        <div className="mt-3 flex flex-col sm:flex-row gap-3 justify-center">
+  <Link
+    to="/dashboard"
+    className="px-6 sm:px-4 py-3 border border-[#217bfe] text-[#217bfe] hover:bg-[#217bfe] hover:text-white rounded-[20px] text-sm transition text-center"
+  >
+    च्याटबोट प्रयोग गर्नुहोस्
+  </Link>
+
+  <Link
+    to="/explore"
+    className="px-5 py-3 border border-[#217bfe] text-[#217bfe] hover:bg-[#217bfe] hover:text-white rounded-[20px] text-sm transition text-center"
+  >
+    Explore गर्नुहोस्
+  </Link>
+</div>
       </div>
 
       {/* Right Section */}
@@ -48,7 +57,7 @@ const HomePage = () => {
         </div>
 
         {/* Chat Bubble - OUTSIDE Ambulance Box */}
-        <div className="absolute mb-32 -right-14 -bottom-2 flex mt-1  items-center gap-2 p-3 bg-[#2c2937] rounded-lg shadow-md max-lg:hidden">
+        <div className="absolute mb-32 right-10 bottom-3 flex mt-1  items-center gap-2 p-2 bg-[#2c2937] rounded-lg shadow-md max-lg:hidden">
           <img
             src={
               typingStatus === "human1"
@@ -83,9 +92,9 @@ const HomePage = () => {
           />
         </div>
       </div>
-       <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-5 text-gray-500 text-xs">
-        <img src="/vite.svg" alt="" className="w-4 h-4 ,t-" />
-        <div className="flex gap-2">
+       <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 text-gray-500 text-xs">
+        <img src="/vite.svg" alt="" className="w-4 h-4" />
+        <div className="flex gap-2 sm:text-sm">
           <Link to="/">Terms of Service</Link>
           <span>|</span>
           <Link to="/">Privacy Policy</Link>
