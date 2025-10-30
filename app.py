@@ -372,6 +372,20 @@ async def delete_chat(chat_id: str, userId: str = Depends(verify_clerk_token)):
         logger.error(f"Delete chat error: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/contacts")
+async def get_contacts():
+    """Fetch all emergency contacts from MongoDB"""
+    try:
+        contacts_cursor = db["emergency_contacts"].find()
+        contacts = []
+        async for contact in contacts_cursor:
+            contact["_id"] = str(contact["_id"])  # Convert ObjectId → string
+            contacts.append(contact)
+        return contacts
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+    
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
