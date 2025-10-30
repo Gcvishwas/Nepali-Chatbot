@@ -12,6 +12,8 @@ import DashboardPage from './routes/Dashboard/DashboardPage';
 import ChatPage from './routes/Chat/ChatPage';
 import RootLayout from './layouts/RootLayout/RootLayout';
 import DashboardLayout from './layouts/DashboardLayout/DashboardLayout';
+import ExplorePage from './routes/Explore/ExplorePage';
+import EmergencyContactsPage from './routes/Explore/EmergencyContactsPage';
 
 const router = createBrowserRouter([
   {element:<RootLayout/>,
@@ -20,6 +22,14 @@ children:[
   {
     path: "/",
     element: <HomePage/>,
+  },
+  {
+    path: "/explore",
+    element: <ExplorePage/>,
+  },
+  {
+    path: "/emergency",
+    element: <EmergencyContactsPage/>,
   },
   {
     path: "/sign-in/*",
