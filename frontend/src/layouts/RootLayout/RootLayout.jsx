@@ -14,6 +14,7 @@ const RootLayout = () => {
 
   const isDashboardRoute = location.pathname.startsWith("/dashboard");
   const isExplorePage=location.pathname==="/explore"
+  const isEmergencyPage=location.pathname==="/emergency"
 
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
@@ -32,7 +33,7 @@ const RootLayout = () => {
             </span>
           </Link>
 
-          {/* ===== Centered Navbar (only outside dashboard) ===== */}
+          {/* Centered Navbar */}
           {!isDashboardRoute && (
             <nav className="absolute left-1/2 transform -translate-x-1/2 hidden md:flex items-center gap-10 font-semibold text-gray-400">
               <Link to="/" className="hover:text-white transition">
@@ -42,9 +43,9 @@ const RootLayout = () => {
                 अन्वेषण
               </Link>
               <Link to="/emergency" className="text-red-400 hover:text-red-500 transition">
-                आपतकालीन सम्पर्क
+                आकस्मिक सम्पर्क
               </Link>
-              <Link to="/emergency" className="hover:text-white transition">
+              <Link to="/dashboard" className="hover:text-white transition">
                 च्याटबोट
               </Link>
             </nav>
@@ -105,7 +106,7 @@ const RootLayout = () => {
         </header>
 
         {/* ===== Main Content ===== */}
-        <main className={`flex-1 mt-5 ${!isExplorePage ? "overflow-hidden" : "overflow-auto"}`}>
+        <main className={`flex-1 mt-5 ${!isExplorePage && !isEmergencyPage ? "overflow-hidden" : "overflow-auto"}`}>
           <Outlet />
         </main>
       </div>
