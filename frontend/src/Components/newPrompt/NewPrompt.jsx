@@ -21,7 +21,7 @@ const NewPrompt = ({ onNewMessage, disabled }) => {
         <input
           type="text"
           className="flex-1 p-4 border-none outline-none bg-transparent text-[#ececec]"
-          placeholder="Type a message..."
+          placeholder="प्रश्न सोध्नुहोस...."
           value={text}
           onChange={(e) => setText(e.target.value)}
           disabled={disabled}
