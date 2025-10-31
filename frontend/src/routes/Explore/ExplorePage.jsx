@@ -15,7 +15,6 @@ const ExplorePage = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
 
-  // Search locations
   useEffect(() => {
     const searchLocation = async () => {
       if (searchQuery.trim().length < 2) {
@@ -113,8 +112,7 @@ const ExplorePage = () => {
 
   const fetchWeather = async () => {
     try {
-      // OpenWeatherMap API - Replace 'YOUR_API_KEY' with actual API key
-      const API_KEY = '7576ca584023095cd04c2d36626a9090'; // Get free key from https://openweathermap.org/api
+      const API_KEY = '7576ca584023095cd04c2d36626a9090';
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${selectedLocation.lat}&lon=${selectedLocation.lon}&appid=${API_KEY}&units=metric`
       );
@@ -154,7 +152,7 @@ const ExplorePage = () => {
       setWeatherData(formattedData);
     } catch (error) {
       console.error('Error fetching weather data:', error);
-      // Use dummy data if API fails
+      //Dummy data if API fails
       setWeatherData({
         current: {
           temperature_2m: 22,
@@ -507,9 +505,8 @@ const dummyTimeout = setTimeout(addDummyAlerts, 5000);
                     </p>
                   </div>
                   
-                  <Precipitation lat={selectedLocation.lat} lon={selectedLocation.lon} locationName={selectedLocation.name}
-  addLiveAlert={addLiveAlert} />
-
+                  <Precipitation lat={selectedLocation.lat} lon={selectedLocation.lon} locationName={selectedLocation.name} addLiveAlert={addLiveAlert} />
+                  
                    <div className="bg-black bg-opacity-20 rounded-lg p-4 transform hover:scale-105 transition">
                     <div className="flex items-center text-gray-300 mb-2">
                       <Cloud className="w-4 h-4 mr-1" />
