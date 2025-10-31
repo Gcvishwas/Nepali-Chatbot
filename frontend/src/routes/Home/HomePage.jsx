@@ -34,10 +34,10 @@ const HomePage = () => {
   </Link>
 
   <Link
-    to="/explore"
-    className="px-5 py-3 border border-[#217bfe] text-[#217bfe] hover:bg-[#217bfe] hover:text-white rounded-[20px] text-sm transition text-center"
+    to="/emergency"
+    className="px-5 py-3 border border-[#217bfe] text-[#217bfe] hover:bg-red-600 hover:text-white rounded-[20px] text-sm transition text-center"
   >
-    अन्वेषण गर्नुहोस्
+    आकस्मिक सम्पर्क
   </Link>
 </div>
       </div>
