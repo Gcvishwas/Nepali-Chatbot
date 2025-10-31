@@ -64,9 +64,9 @@ const ChatList = () => {
   return (
     <div className="flex flex-col h-full">
       <span className="title font-semibold text-[10px] mb-2.5">DASHBOARD</span>
-      <Link to="/dashboard" className="p-2.5 rounded-[10px] hover:bg-[#2c2937]">Create a new Chat</Link>
-      <Link to="/explore" className="p-2.5 rounded-[10px] hover:bg-[#2c2937]">Explore</Link>
-      <Link to="/emergency" className="p-2.5 rounded-[10px] hover:bg-[#2c2937]">Emergency Contacts</Link>
+      <Link to="/dashboard" className="p-2.5 rounded-[10px] hover:bg-[#2c2937]">नयाँ च्याट</Link>
+      <Link to="/explore" className="p-2.5 rounded-[10px] hover:bg-[#2c2937]">अन्वेषण</Link>
+      <Link to="/emergency" className="p-2.5 rounded-[10px] hover:bg-[#2c2937]">आकस्मिक सम्पर्क</Link>
 
       <hr className="border-none h-[2px] bg-[#ddd] opacity-10 rounded-[5px] my-5" />
       
