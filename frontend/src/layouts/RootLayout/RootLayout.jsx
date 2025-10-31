@@ -29,7 +29,7 @@ const RootLayout = () => {
           >
             <img src="/vite.svg" alt="logo" className="w-6 h-6" />
             <span className="font-bold bg-gradient-to-r from-[#217bfe] to-[#e55571] bg-clip-text text-transparent">
-              Prakop.AI
+              प्रकोप.AI
             </span>
           </Link>
 
