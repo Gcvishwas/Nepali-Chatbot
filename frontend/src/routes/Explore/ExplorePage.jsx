@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Cloud, Activity, Droplets, Wind, MapPin, Clock, Search, Navigation, Bell, X, Crosshair, Flame, CloudRain, TrendingUp } from 'lucide-react';
-import Precipitation from './Precipitation';
-
+import { AlertTriangle, Cloud, Activity, Droplets, Wind, MapPin, Clock, Search, Navigation, Bell, X, Crosshair, Flame, CloudRain, TrendingUp, Newspaper } from 'lucide-react';
+import Precipitation from "./Precipitation";
 const ExplorePage = () => {
   const [earthquakeData, setEarthquakeData] = useState([]);
   const [weatherData, setWeatherData] = useState(null);
@@ -14,6 +13,119 @@ const ExplorePage = () => {
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [earthquakeLoaded, setEarthquakeLoaded] = useState(false);
+const [weatherLoaded, setWeatherLoaded] = useState(false);
+const [newsLoaded, setNewsLoaded] = useState(false);
+
+
+  // RSS Feed sources from major Nepali news sites
+  const rssSources = [
+    'https://www.onlinekhabar.com/feed',
+    'https://ekantipur.com/feed',
+    'https://www.setopati.com/feed',
+    'https://www.bbc.com/nepali/rss.xml',
+    'https://ratopati.com/feed'
+  ];
+
+  // Keywords to identify disaster-related news
+  const disasterKeywords = {
+    earthquake: ['भूकम्प', 'भुकम्प', 'earthquake', 'tremor', 'seismic'],
+    flood: ['बाढी', 'बाढि', 'flood', 'flooding', 'inundation', 'डुबान'],
+    landslide: ['पहिरो', 'landslide', 'mudslide', 'भूस्खलन'],
+    storm: ['आँधी', 'आंधी', 'बेहरी', 'storm', 'cyclone', 'hurricane', 'तूफान'],
+    fire: ['आगलागी', 'आगो', 'fire', 'blaze', 'दहन'],
+    transport: ['road closure', 'highway stuck', 'सडक बन्द', 'सडक जाम', 'traffic jam'],
+    general: ['प्रकोप', 'विपद', 'disaster', 'emergency', 'संकट', 'क्षति', 'damage']
+  };
+
+  const identifyDisasterType = (text) => {
+    const lowerText = text.toLowerCase();
+    
+    for (const [type, keywords] of Object.entries(disasterKeywords)) {
+      if (type === 'general') continue;
+      for (const keyword of keywords) {
+        if (lowerText.includes(keyword.toLowerCase())) {
+          return type;
+        }
+      }
+    }
+    return 'earthquake';
+  };
+
+  const isDisasterRelated = (text) => {
+    const lowerText = text.toLowerCase();
+    return Object.values(disasterKeywords).flat().some(keyword => 
+      lowerText.includes(keyword.toLowerCase())
+    );
+  };
+
+  const parseRSSFeed = async (url) => {
+    try {
+      const proxyUrl = 'https://api.allorigins.win/get?url=';
+      const response = await fetch(proxyUrl + encodeURIComponent(url));
+      const data = await response.json();
+      
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(data.contents, 'text/xml');
+      
+      const items = xml.querySelectorAll('item');
+      const articles = [];
+
+      items.forEach((item, index) => {
+        if (index >= 5) return;
+        
+        const title = item.querySelector('title')?.textContent || '';
+        const description = item.querySelector('description')?.textContent || '';
+        const link = item.querySelector('link')?.textContent || '';
+        const pubDate = item.querySelector('pubDate')?.textContent || '';
+        
+        if (isDisasterRelated(title + ' ' + description)) {
+          articles.push({
+            title: title.trim(),
+            description: description.replace(/<[^>]*>/g, '').trim().substring(0, 150),
+            link,
+            pubDate: new Date(pubDate),
+            type: identifyDisasterType(title + ' ' + description),
+            source: new URL(url).hostname
+          });
+        }
+      });
+
+      return articles;
+    } catch (error) {
+      console.error('Error fetching RSS feed:', url, error);
+      return [];
+    }
+  };
+
+  const fetchNewsAlerts = async () => {
+    try {
+      const allArticles = [];
+      
+      for (const source of rssSources) {
+        const articles = await parseRSSFeed(source);
+        allArticles.push(...articles);
+      }
+
+      allArticles.sort((a, b) => b.pubDate - a.pubDate);
+
+      const uniqueArticles = [];
+      allArticles.forEach(article => {
+        const isDuplicate = uniqueArticles.some(existing => 
+          existing.title.substring(0, 30) === article.title.substring(0, 30)
+        );
+        if (!isDuplicate) {
+          uniqueArticles.push(article);
+        }
+      });
+
+      uniqueArticles.slice(0, 10).forEach(article => {
+        addLiveAlert('news', article);
+      });
+    } catch (error) {
+      console.error('Error fetching news alerts:', error);
+    }
+  };
 
   useEffect(() => {
     const searchLocation = async () => {
@@ -88,8 +200,9 @@ const ExplorePage = () => {
 
   const fetchEarthquakes = async () => {
     try {
+      const startTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       const response = await fetch(
-        'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2025-10-20&minmagnitude=4.0&minlatitude=26&maxlatitude=31&minlongitude=80&maxlongitude=89'
+        `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${startTime}&minmagnitude=4.0&minlatitude=26&maxlatitude=31&minlongitude=80&maxlongitude=89`
       );
       const data = await response.json();
       const newQuakes = data.features.slice(0, 20);
@@ -128,12 +241,10 @@ const ExplorePage = () => {
           temperature_2m: data.main.temp,
           relative_humidity_2m: data.main.humidity,
           precipitation: data.rain ? (data.rain['1h'] || 0) : 0,
-          wind_speed_10m: (data.wind.speed).toFixed(1), // Convert m/s to km/h
+          wind_speed_10m: (data.wind.speed).toFixed(1),
           weather_description: data.weather[0].description
         }
       };
-      
-      
       
       if (parseFloat(formattedData.current.wind_speed_10m) > 40) {
         addLiveAlert('high_wind', { 
@@ -152,7 +263,6 @@ const ExplorePage = () => {
       setWeatherData(formattedData);
     } catch (error) {
       console.error('Error fetching weather data:', error);
-      //Dummy data if API fails
       setWeatherData({
         current: {
           temperature_2m: 22,
@@ -166,85 +276,110 @@ const ExplorePage = () => {
   };
 
   const addLiveAlert = (type, data) => {
-    const alertId = Date.now() + Math.random();
-    const newAlert = {
-      id: alertId,
-      type,
-      data,
-      timestamp: new Date(),
-      read: false
-    };
-    
-    setLiveAlerts(prev => {
-      const exists = prev.some(alert => 
-        alert.type === type && 
-        JSON.stringify(alert.data) === JSON.stringify(data)
-      );
-      
-      if (!exists) {
-        return [newAlert, ...prev].slice(0, 50);
-      }
-      return prev;
-    });
-    
-    setTimeout(() => {
-      setLiveAlerts(prev => prev.filter(alert => alert.id !== alertId));
-    }, 60000);
+  const alertId = Date.now() + Math.random();
+  const newAlert = {
+    id: alertId,
+    type,
+    data,
+    timestamp: new Date(),
+    read: false
   };
 
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      await Promise.all([fetchEarthquakes(), fetchWeather()]);
-      setLoading(false);
-      setLastUpdate(new Date());
-    };
-
-    loadData();
-    
-    // Add dummy alerts if no live data available
-    const addDummyAlerts = () => {
   setLiveAlerts(prev => {
-    // Only add dummy alerts if prev (latest state) is empty
+    // Remove dummy alerts if real alert comes
+    const filteredPrev = prev.filter(alert => !alert.isDummy);
+
+    const exists = filteredPrev.some(alert => {
+      if (type === 'news' && alert.type === 'news') {
+        return alert.data.title === data.title;
+      }
+      if (type === alert.type) {
+        return JSON.stringify(alert.data) === JSON.stringify(data);
+      }
+      return false;
+    });
+
+    if (!exists) {
+      return [newAlert, ...filteredPrev].slice(0, 50);
+    }
+    return filteredPrev;
+  });
+
+  // Auto-remove alert after 5 minutes
+  setTimeout(() => {
+    setLiveAlerts(prev => prev.filter(alert => alert.id !== alertId));
+  }, 300000); // 5 minutes
+};
+
+  useEffect(() => {
+  const loadData = async () => {
+    setLoading(true);
+    fetchEarthquakes().then(() => setEarthquakeLoaded(true));
+    fetchWeather().then(() => setWeatherLoaded(true));
+    fetchNewsAlerts().then(() => setNewsLoaded(true));
+    setLoading(false); // Optional, only if you have a global loader
+  };
+  loadData();
+    
+    // Add dummy alerts if no real alerts after 5 seconds
+   const addDummyAlerts = () => {
+  setLiveAlerts(prev => {
     if (prev.length === 0) {
       const dummyAlerts = [
         {
           id: Date.now() + 1,
-          type: 'flood',
-          data: { location: 'बागमती नदी, काठमाडौं' },
-          timestamp: new Date(Date.now() - 300000),
-          read: false
+          type: 'news',
+          data: { 
+            title: 'काठमाडौं उपत्यकामा भूकम्पको जोखिम बढ्दो - विज्ञहरूको चेतावनी',
+            description: 'पूर्व तयारी आवश्यक रहेको बताइएको छ।',
+            link: '#',
+            source: 'onlinekhabar.com'
+          },
+          timestamp: new Date(Date.now() - 180000),
+          read: false,
+          isDummy: true
         },
         {
           id: Date.now() + 2,
-          type: 'landslide',
-          data: { location: 'सिन्धुपाल्चोक जिल्ला' },
-          timestamp: new Date(Date.now() - 600000),
-          read: false
+          type: 'flood',
+          data: { location: 'बागमती नदी, काठमाडौं' },
+          timestamp: new Date(Date.now() - 300000),
+          read: false,
+          isDummy: true
         },
         {
           id: Date.now() + 3,
+          type: 'landslide',
+          data: { location: 'सिन्धुपाल्चोक जिल्ला' },
+          timestamp: new Date(Date.now() - 600000),
+          read: false,
+          isDummy: true
+        },
+        {
+          id: Date.now() + 4,
           type: 'fire',
           data: { location: 'ललितपुर महानगरपालिका' },
           timestamp: new Date(Date.now() - 900000),
-          read: false
+          read: false,
+          isDummy: true
         }
       ];
       return dummyAlerts;
     }
-    return prev; // keep existing live alerts
+    return prev;
   });
 };
 
-// Add dummy alerts after 5 seconds if still empty
-const dummyTimeout = setTimeout(addDummyAlerts, 5000);
 
+    const dummyTimeout = setTimeout(addDummyAlerts, 5000);
     
     const interval = setInterval(() => {
+      
       fetchEarthquakes();
       fetchWeather();
+      fetchNewsAlerts();
       setLastUpdate(new Date());
-    }, 1200);
+    }, 10000); // 2 minutes
 
     return () => {
       clearInterval(interval);
@@ -312,6 +447,7 @@ const dummyTimeout = setTimeout(addDummyAlerts, 5000);
       case 'flood': return <Droplets className="w-5 h-5" />;
       case 'landslide': return <AlertTriangle className="w-5 h-5" />;
       case 'fire': return <Flame className="w-5 h-5" />;
+      case 'news': return <Newspaper className="w-5 h-5" />;
       default: return <AlertTriangle className="w-5 h-5" />;
     }
   };
@@ -325,6 +461,7 @@ const dummyTimeout = setTimeout(addDummyAlerts, 5000);
       case 'flood': return 'from-blue-700 to-blue-500';
       case 'landslide': return 'from-amber-700 to-yellow-600';
       case 'fire': return 'from-red-700 to-orange-500';
+      case 'news': return 'from-indigo-600 to-purple-600';
       default: return 'from-gray-600 to-gray-700';
     }
   };
@@ -345,6 +482,8 @@ const dummyTimeout = setTimeout(addDummyAlerts, 5000);
         return `पहिरो जोखिम - ${alert.data.location} मा`;
       case 'fire':
         return `आगलागी - ${alert.data.location} मा`;
+      case 'news':
+        return alert.data.title;
       default:
         return 'आपत्कालीन सूचना';
     }
@@ -371,7 +510,7 @@ const dummyTimeout = setTimeout(addDummyAlerts, 5000);
   const nearbyQuakes = getNearbyQuakes();
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen">
       {/* Header */}
       <header className="bg-black bg-opacity-30 backdrop-blur-md border-b border-white border-opacity-10 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
@@ -501,12 +640,13 @@ const dummyTimeout = setTimeout(addDummyAlerts, 5000);
                       <span className="text-xs">Wind</span>
                     </div>
                     <p className="text-xl sm:text-2xl font-bold text-white">
-                      {weatherData.current.wind_speed_10m} m/s
+                      {(weatherData.current.wind_speed_10m*3.6).toFixed(2)} km/hr
                     </p>
                   </div>
-                  
-                  <Precipitation lat={selectedLocation.lat} lon={selectedLocation.lon} locationName={selectedLocation.name} addLiveAlert={addLiveAlert} />
-                  
+                  <Precipitation  lat={selectedLocation.lat} 
+  lon={selectedLocation.lon} 
+  locationName={selectedLocation.name}
+  addLiveAlert={addLiveAlert}/>
                    <div className="bg-black bg-opacity-20 rounded-lg p-4 transform hover:scale-105 transition">
                     <div className="flex items-center text-gray-300 mb-2">
                       <Cloud className="w-4 h-4 mr-1" />
@@ -516,6 +656,7 @@ const dummyTimeout = setTimeout(addDummyAlerts, 5000);
                       {weatherData.current.weather_description}
                     </p>
                   </div>
+                  
                 </div>
               )}
             </div>
@@ -596,7 +737,17 @@ const dummyTimeout = setTimeout(addDummyAlerts, 5000);
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center space-x-2 text-white">
                           {getAlertIcon(alert.type)}
-                          <span className="text-xs font-bold uppercase">{alert.type === 'earthquake' ? 'भूकम्प' : alert.type === 'heavy_rain' ? 'भारी वर्षा' : alert.type === 'high_wind' ? 'तेज हावा' : alert.type === 'heat_wave' ? 'गर्मी लहर' : alert.type === 'flood' ? 'बाढी' : alert.type === 'landslide' ? 'पहिरो' : alert.type === 'fire' ? 'आगलागी' : 'सूचना'}</span>
+                          <span className="text-xs font-bold uppercase">
+                            {alert.type === 'earthquake' ? 'भूकम्प' : 
+                             alert.type === 'heavy_rain' ? 'भारी वर्षा' : 
+                             alert.type === 'high_wind' ? 'तेज हावा' : 
+                             alert.type === 'heat_wave' ? 'गर्मी लहर' : 
+                             alert.type === 'flood' ? 'बाढी' : 
+                             alert.type === 'landslide' ? 'पहिरो' : 
+                             alert.type === 'fire' ? 'आगलागी' : 
+                             alert.type === 'news' ? 'समाचार' : 
+                             'सूचना'}
+                          </span>
                         </div>
                         <button
                           onClick={() => setLiveAlerts(prev => prev.filter(a => a.id !== alert.id))}
@@ -608,6 +759,10 @@ const dummyTimeout = setTimeout(addDummyAlerts, 5000);
                       
                       <p className="text-white text-sm mb-2">{getAlertMessage(alert)}</p>
                       
+                      {alert.type === 'news' && alert.data.description && (
+                        <p className="text-gray-200 text-xs mb-2 line-clamp-2">{alert.data.description}</p>
+                      )}
+                      
                       <div className="flex justify-between items-center text-xs text-gray-200">
                         <span>{formatTimeAgo(alert.timestamp)}</span>
                         {alert.type === 'earthquake' && alert.data.geometry && (
@@ -617,6 +772,19 @@ const dummyTimeout = setTimeout(addDummyAlerts, 5000);
                             alert.data.geometry.coordinates[1],
                             alert.data.geometry.coordinates[0]
                           ).toFixed(0)} km टाढा</span>
+                        )}
+                        {alert.type === 'news' && (
+                          <a 
+                            href={alert.data.link} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-white hover:underline flex items-center gap-1"
+                          >
+                            पढ्नुहोस्
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
                         )}
                       </div>
                     </div>
