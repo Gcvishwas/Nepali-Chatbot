@@ -14,7 +14,7 @@ export const useDisasterData = (selectedLocation) => {
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [earthquakes, setEarthquakes] = useState([]);
   const [weather, setWeather] = useState(null);
-  const [news, setNews] = useState([]);
+  // const [news, setNews] = useState([]);
 
   const addLiveAlert = (type, data) => {
     const alertId = Date.now() + Math.random();
